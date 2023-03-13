@@ -10,8 +10,6 @@ import { outputChannelDep, initOutputChannel } from './extension';
 import { Commands } from './commands';
 import { dirname } from 'path';
 
-const GOMANIFEST_PKG = "github.com/fabric8-analytics/cli-tools/gomanifest";
-
 export module ProjectDataProvider {
   export const isOutputChannelActivated = (): any => {
     if (!outputChannelDep) {
