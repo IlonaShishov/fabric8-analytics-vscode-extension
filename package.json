@@ -191,7 +191,7 @@
         },
         "dependencyAnalytics.host": {
           "type": "string",
-          "default": "https://gw.api.openshift.io/",
+          "default": "http://bayesian-api-sssc.apps.sssc-cl01.appeng.rhecoeng.com",
           "description": "Host name of Dependency Analytics server.",
           "scope": "window"
         },
@@ -203,7 +203,7 @@
         },
         "dependencyAnalytics.stackReportUIHost": {
           "type": "string",
-          "default": "https://stack-analytics-report.openshift.io/",
+          "default": "http://bayesian-api-sssc.apps.sssc-cl01.appeng.rhecoeng.com",
           "description": "Host name of the stack report UI.",
           "scope": "window"
         },

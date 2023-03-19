@@ -100,9 +100,7 @@ export class DependencyReportPanel {
       DependencyReportPanel.data = data;
       let r = header;
       let token_uri = undefined;
-      portal_uri = `${apiConfig.stackReportUIHost}#/analyze/${data.external_request_id
-        }?interframe=true&api_data={"access_token":"${token_uri}","route_config":{"api_url":"${apiConfig.host
-        }","ver":"v3","uuid":"${process.env.UUID}"},"user_key":"${apiConfig.apiKey}"}`;
+      portal_uri = `${apiConfig.stackReportUIHost}/api/v2/stack-report/${data.external_request_id}`;
       console.log('portal_uri', portal_uri);
       r += render_stack_iframe(portal_uri);
       r += footer;
