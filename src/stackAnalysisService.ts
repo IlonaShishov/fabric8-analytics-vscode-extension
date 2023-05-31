@@ -118,7 +118,7 @@ export module stackAnalysisServices {
             httpResponse.statusCode === 429 ||
             httpResponse.statusCode === 403
           ) {
-            errorMsg = `Service is currently busy to process your request for analysis, please try again in few minutes, Status: ${httpResponse.statusCode
+            errorMsg = `Service is currently busy to process your request for analysis, please try again in few minutes. Status: ${httpResponse.statusCode
               } - ${httpResponse.statusMessage}`;
             reject(errorMsg);
           } else if (httpResponse.statusCode === 408) {
@@ -143,9 +143,51 @@ export module stackAnalysisServices {
 
   };
 
+  export const getTokenValidationService = (options, retryCount = 0) => {
+    let errorMsg: string;
+
+    const getRequestWithExponentialBackoff = (resolve, reject) => {
+      request.get(options, (err, httpResponse) => {
+        if (err) {
+          if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            invokeExponentialBackoff(retryCount, getRequestWithExponentialBackoff, resolve, reject);
+          } else {
+            reject(err);
+          }
+        } else {
+          if (
+            httpResponse.statusCode === 200 ||
+            httpResponse.statusCode === 202
+          ) {
+            resolve();
+          } else if (
+            httpResponse.statusCode === 400 ||
+            httpResponse.statusCode === 401
+          ) {
+            errorMsg = `Please provide a valid token in the extension workspace settings. Status: ${httpResponse.statusCode} - ${httpResponse.statusMessage}`;
+            reject(errorMsg);
+          } else if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            invokeExponentialBackoff(retryCount, getRequestWithExponentialBackoff, resolve, reject);
+          } else {
+            errorMsg = `Error trying to perform the request, please try again in a while. Status: ${httpResponse.statusCode} - ${httpResponse.statusMessage}`;
+            reject(errorMsg);
+          }
+        }
+      });
+    };
+
+    return new Promise((resolve, reject) => {
+      getRequestWithExponentialBackoff(resolve, reject);
+    });
+
+  };
+
   const invokeExponentialBackoff = (retryCount, requestFunc, resolve, reject) => {
     const delay = INITIAL_DELAY * Math.pow(2, retryCount); // calculate delay time
     console.log(`Retry ${retryCount} in ${delay}ms`);
     setTimeout(() => requestFunc(resolve, reject), delay);
   };
 }
+

@@ -45,6 +45,23 @@ export module stackanalysismodule {
               return formData;
             })
             .then(async formData => {
+              if (apiConfig.crdaSnykToken !== '' && ecosystem === 'maven') {
+
+                const options = {};
+
+                options['uri'] = `${apiConfig.crdaHost}/api/v3/token`;
+                options['headers'] = {
+                  'Crda-Snyk-Token': apiConfig.crdaSnykToken
+                };
+
+                await stackAnalysisServices.getTokenValidationService(
+                  options,
+                );
+              }
+
+              return formData;
+            })
+            .then(async formData => {
               let payloadData = formData;
               const options = {};
               let thatContext: any;
