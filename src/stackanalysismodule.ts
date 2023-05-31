@@ -38,29 +38,6 @@ export module stackanalysismodule {
               });
               return dataEpom;
             })
-            .then(async dataEpom => {
-              let formData = await multimanifestmodule.form_manifests_payload(
-                dataEpom, ecosystem
-              );
-              return formData;
-            })
-            .then(async formData => {
-              if (apiConfig.crdaSnykToken !== '' && ecosystem === 'maven') {
-
-                const options = {};
-
-                options['uri'] = `${apiConfig.crdaHost}/api/v3/token`;
-                options['headers'] = {
-                  'Crda-Snyk-Token': apiConfig.crdaSnykToken
-                };
-
-                await stackAnalysisServices.getTokenValidationService(
-                  options,
-                );
-              }
-
-              return formData;
-            })
             .then(async formData => {
               let payloadData = formData;
               const options = {};

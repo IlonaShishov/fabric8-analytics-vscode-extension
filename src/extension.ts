@@ -13,6 +13,7 @@ import { Config } from './config';
 import { Commands } from './commands';
 import { GlobalState, extensionQualifiedId, registrationURL } from './constants';
 import { multimanifestmodule } from './multimanifestmodule';
+import { stackAnalysisServices } from './stackAnalysisService';
 import { authextension } from './authextension';
 import { StatusMessages } from './statusMessages';
 import { caStatusBarProvider } from './caStatusBarProvider';
@@ -148,6 +149,28 @@ export function activate(context: vscode.ExtensionContext) {
         disposableStackLogs,
         caStatusBarProvider,
       );
+    }
+  });
+
+  const validateSnykToken = async () => {
+    const crdaSnykToken = vscode.workspace.getConfiguration().get('dependencyAnalytics.crdaSnykToken');
+
+    if (crdaSnykToken !== '') {
+      const options = {};
+      options['uri'] = `${apiConfig.crdaHost}/api/v3/token`;
+      options['headers'] = {
+        'Crda-Snyk-Token': crdaSnykToken
+      };
+
+      stackAnalysisServices.getSnykTokenValidationService(options);
+    } else {
+      vscode.window.showInformationMessage('If a Snyk Token is not specified in the extension workspace settings, the server will automatically resolve to a default token.');
+    }
+  }
+
+  vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration('dependencyAnalytics.crdaSnykToken')) {
+      validateSnykToken();
     }
   });
 }
