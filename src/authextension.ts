@@ -6,7 +6,6 @@ import { Config } from './config';
 import { getRedHatService } from '@redhat-developer/vscode-redhat-telemetry/lib';
 
 export module authextension {
-  const apiConfig = Config.getApiConfig();
   export let setContextData: any;
 
   setContextData = (apiConfig) => {
@@ -34,6 +33,7 @@ export module authextension {
     try {
       await setTelemetryid(context);
 
+      const apiConfig = Config.getApiConfig();
       setContextData(apiConfig);
 
       let uuid = context.globalState.get(GlobalState.UUID);
@@ -41,7 +41,7 @@ export module authextension {
       if (uuid && uuid !== '') {
         setUUID(uuid);
       } else {
-        uuid = await getUUID();
+        uuid = await getUUID(apiConfig);
         if (uuid) {
           context.globalState.update(GlobalState.UUID, uuid);
           setUUID(uuid);
@@ -55,7 +55,7 @@ export module authextension {
     }
   };
 
-  export async function getUUID(): Promise<string> {
+  export async function getUUID(apiConfig: any): Promise<string> {
     const url = `${apiConfig.host
       }/user?user_key=${apiConfig.apiKey}`;
 

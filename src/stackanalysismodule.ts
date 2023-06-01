@@ -14,13 +14,13 @@ import { StatusMessages } from './statusMessages';
 import { DependencyReportPanel } from './dependencyReportPanel';
 
 export module stackanalysismodule {
-  const apiConfig = Config.getApiConfig();
   export const stackAnalysesLifeCycle = (
     context,
     effectiveF8Var,
     argumentList,
     ecosystem
   ) => {
+    const apiConfig = Config.getApiConfig();
     vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Window,
@@ -195,13 +195,13 @@ export module stackanalysismodule {
 
   export const validateSnykToken = async () => {
 
-    const crdaSnykToken = vscode.workspace.getConfiguration().get('dependencyAnalytics.crdaSnykToken');
+    const apiConfig = Config.getApiConfig();
 
-    if (crdaSnykToken !== '') {
+    if (apiConfig.crdaSnykToken !== '') {
       const options = {};
       options['uri'] = `${apiConfig.crdaHost}/api/v3/token`;
       options['headers'] = {
-        'Crda-Snyk-Token': crdaSnykToken
+        'Crda-Snyk-Token': apiConfig.crdaSnykToken
       };
 
       stackAnalysisServices.getSnykTokenValidationService(options);
