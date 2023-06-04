@@ -10,12 +10,13 @@ export module authextension {
   export let setContextData: any;
 
   setContextData = (apiConfig) => {
-    process.env['RECOMMENDER_API_URL'] =
-      apiConfig.host + '/api/v2';
+    process.env['RECOMMENDER_API_URL'] = apiConfig.host + '/api/v2';
     process.env['THREE_SCALE_USER_TOKEN'] = apiConfig.apiKey;
     process.env['PROVIDE_FULLSTACK_ACTION'] = 'true';
     process.env['GOLANG_EXECUTABLE'] = Config.getGoExecutable();
     process.env['UTM_SOURCE'] = 'vscode';
+    process.env['CRDA_API_URL'] = apiConfig.crdaHost;
+    process.env['CRDA_SNYK_TOKEN'] = apiConfig.crdaSnykToken;
   };
 
   export function setUUID(uuid) {
@@ -25,7 +26,7 @@ export module authextension {
   export async function setTelemetryid(context) {
     const redhatService = await getRedHatService(context);
     const REDHAT_UUID = await (
-      await redhatService.getIdManager()
+      await redhatService.getIdProvider()
     ).getRedHatUUID();
     process.env['TELEMETRY_ID'] = REDHAT_UUID;
   }

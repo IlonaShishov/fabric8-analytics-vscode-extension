@@ -6,10 +6,10 @@ import {
   LanguageClientOptions,
   ServerOptions,
   TransportKind
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
+
 import * as path from 'path';
 
-import { Config } from './config';
 import { Commands } from './commands';
 import { GlobalState, extensionQualifiedId, registrationURL } from './constants';
 import { multimanifestmodule } from './multimanifestmodule';
@@ -25,7 +25,6 @@ let lspClient: LanguageClient;
 export let outputChannelDep: any;
 
 export function activate(context: vscode.ExtensionContext) {
-  const apiConfig = Config.getApiConfig();
   startUp(context);
   let disposableFullStack = vscode.commands.registerCommand(
     Commands.TRIGGER_FULL_STACK_ANALYSIS,
@@ -90,10 +89,9 @@ export function activate(context: vscode.ExtensionContext) {
           // Synchronize the setting section 'dependencyAnalyticsServer' to the server
           configurationSection: 'dependencyAnalyticsServer',
           // Notify the server about file changes to '.clientrc files contained in the workspace
-          fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+          fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc'),
         },
         initializationOptions: {
-          crdaHost: apiConfig.crdaHost,
           triggerFullStackAnalysis: Commands.TRIGGER_FULL_STACK_ANALYSIS
         },
       };
@@ -105,8 +103,7 @@ export function activate(context: vscode.ExtensionContext) {
         serverOptions,
         clientOptions
       );
-
-      lspClient.onReady().then(() => {
+      lspClient.start().then(() => {
         const notifiedFiles = new Set<string>();
         const canShowPopup = (notification: CANotification): boolean => {
           const hasAlreadyShown = notifiedFiles.has(notification.origin());
@@ -141,9 +138,12 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.window.showErrorMessage(respData.data);
           record(context, TelemetryActions.componentAnalysisFailed, { manifest: path.basename(notification.origin()), fileName: path.basename(notification.origin()), error: respData.data });
         });
+
+        lspClient.onNotification('caTokenWarning', msg => {
+          vscode.window.showWarningMessage(msg);
+        })
       });
       context.subscriptions.push(
-        lspClient.start(),
         disposableFullStack,
         disposableStackLogs,
         caStatusBarProvider,

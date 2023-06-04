@@ -14,7 +14,6 @@ import { StatusMessages } from './statusMessages';
 import { DependencyReportPanel } from './dependencyReportPanel';
 
 export module stackanalysismodule {
-  const apiConfig = Config.getApiConfig();
   export const stackAnalysesLifeCycle = (
     context,
     effectiveF8Var,
@@ -49,6 +48,7 @@ export module stackanalysismodule {
               const options = {};
               let thatContext: any;
 
+              const apiConfig = Config.getApiConfig();
               if (ecosystem === 'maven') {
                 options['uri'] = `${apiConfig.crdaHost}/api/v3/dependency-analysis/${ecosystem}`;
                 options['body'] = payloadData['manifest']['value'];
@@ -79,6 +79,7 @@ export module stackanalysismodule {
               return resp;
             })
             .then(async resp => {
+              const apiConfig = Config.getApiConfig();
               if (ecosystem === 'maven') {
                 fs.writeFile(apiConfig.dependencyAnalysisReportFilePath, resp, (err) => {
                   if (err) {
@@ -88,11 +89,10 @@ export module stackanalysismodule {
                     handleError(err);
                     reject();
                   }
-                  console.log(`File saved to ${apiConfig.dependencyAnalysisReportFilePath}`);
                   if (DependencyReportPanel.currentPanel) {
                     DependencyReportPanel.currentPanel.doUpdatePanel(resp);
                   }
-                  resolve();
+                  resolve(null);
                 });
               } else {
                 console.log(`Analyzing your stack, id ${resp}`);
@@ -116,7 +116,7 @@ export module stackanalysismodule {
                         if (DependencyReportPanel.currentPanel) {
                           DependencyReportPanel.currentPanel.doUpdatePanel(data);
                         }
-                        resolve();
+                        resolve(null);
                       } else {
                         console.log(`Polling for stack report, remaining count:${timeoutCounter}`);
                         --timeoutCounter;
@@ -194,14 +194,12 @@ export module stackanalysismodule {
   };
 
   export const validateSnykToken = async () => {
-
-    const crdaSnykToken = vscode.workspace.getConfiguration().get('dependencyAnalytics.crdaSnykToken');
-
-    if (crdaSnykToken !== '') {
+    const apiConfig = Config.getApiConfig();
+    if (apiConfig.crdaSnykToken !== '') {
       const options = {};
       options['uri'] = `${apiConfig.crdaHost}/api/v3/token`;
       options['headers'] = {
-        'Crda-Snyk-Token': crdaSnykToken
+        'Crda-Snyk-Token': apiConfig.crdaSnykToken
       };
 
       stackAnalysisServices.getSnykTokenValidationService(options);
@@ -213,5 +211,5 @@ export module stackanalysismodule {
                                             To resolve this issue, please obtain a valid token from the following link: [here](${snykURL}).`);
 
     }
-  }
+  };
 }
