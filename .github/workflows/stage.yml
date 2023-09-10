@@ -93,7 +93,15 @@ jobs:
 
       - name: Delete early-access tag if exists
         continue-on-error: true
-        run: git push --delete origin early-access
+        if: ${{ steps.existing_release.outputs.id }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repo_name = context.payload.repository.full_name
+            var response = await github.request('DELETE /repos/' + repo_name + '/releases/tags/early-access')
+            console.log("response:")
+            console.log(response)
 
       # a little pause between deleting the release and creating a new one
       # without it, the new release might be a weird release, i.e. a draft release
