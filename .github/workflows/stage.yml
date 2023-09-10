@@ -99,7 +99,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const repo_name = context.payload.repository.full_name
-            var response = await github.request('DELETE /repos/' + repo_name + '/releases/tag/early-access')
+            var response = await github.request('DELETE /repos/' + repo_name + '/releases/tags/early-access')
             console.log("response:")
             console.log(response)
 
