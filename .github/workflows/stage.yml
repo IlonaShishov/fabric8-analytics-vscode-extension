@@ -87,7 +87,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const repo_name = context.payload.repository.full_name
-            await github.request('DELETE /repos/' + repo_name + '/releases/' + ${{ steps.existing_release.outputs.id }})
+            var response = await github.request('DELETE /repos/' + repo_name + '/releases/' + ${{ steps.existing_release.outputs.id }})
+            console.log("response:")
+            console.log(response)
 
       - name: Delete early-access tag if exists
         continue-on-error: true
